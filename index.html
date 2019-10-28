@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+    <title>VUE</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.12.0/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.13.1/lodash.min.js"></script>
+    <style type="text/css">
+        .active {
+            color: red
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="app">
+    <!--插值-->
+    <span v-bind:title="content">{{ content }}</span>
+    <hr/>
+
+    <span v-bind:id="content_id">{{ content }}</span>
+    <hr/>
+
+    <button v-bind:disabled="isButtonDisabled">Disabled</button>
+    <hr/>
+
+    <!--输出html样式-->
+    <span v-html="rawHtml">{{ rawHtml }}</span>
+    <hr/>
+
+    <!--绑定元素-->
+    <span v-bind:title="message">
+            鼠标悬停几秒钟查看此处动态绑定的提示信息！
+        </span>
+    <hr/>
+
+    <!--控制切换-->
+    <p v-if="seen" v-bind:title="seen">现在你看到我乐</p>
+    <hr/>
+
+    <!--循环数组-->
+    <ol>
+        <li v-for="post in posts">
+            {{ post.body }}
+        </li>
+    </ol>
+    <hr/>
+
+    <!--事件监听器-->
+    <p>{{ reMessage }}</p>
+    <button v-on:click="reverseMessage">反转消息</button>
+    <hr/>
+
+    <!--v-model双向绑定-->
+    <p>{{ modelBindValue }}</p>
+    <input type="text" v-model="modelBindValue" placeholder="请输入搜索内容">
+    <hr/>
+
+    <!--组件-->
+    <ol>
+        <todo-item
+                v-for="item in items"
+                v-bind:todo="item"
+                v-bind:key="item.id"
+                v-bind:class="{active: isActive}"
+        ></todo-item>
+    </ol>
+    <hr/>
+
+    <!--冻结数据-->
+    <button v-on:click="content = 'baz'">Change Content</button>
+
+    <!--计算属性-->
+    <p>{{ textModel }}</p>
+    <button>{{ reverseTextModel }}</button>
+    <hr/>
+
+    <p>
+        Ask a yes/no question:
+        <input v-model="question" placeholder="请输入搜索内容">
+    </p>
+    <p>{{ answer }}</p>
+    <hr/>
+
+    <p>
+        Class is not Exists:
+        <input v-bind:class="{ active: isActive, 'text-danger' : hasError }" v-bind:value="content" placeholder="请输入搜索内容">
+        <input v-bind:class="activeObject" v-bind:value="content" placeholder="请输入搜索内容">
+        <div v-bind:class="classObject">classObject</div>
+        <div v-bind:class="[isActive ? activeClass : '', errorClass]">三元运算符</div>
+    </p>
+    <hr/>
+
+    <p v-bind:style="{color: redStyle, fontSize: fontSizeStyle + 'px'}">This is style</p>
+    <p v-bind:style="styleObject">styleObject</p>
+    <hr/>
+
+    <p v-if="awesomeBool">条件渲染</p>
+    <p v-else>oh no!</p>
+    <hr/>
+
+    <!--在 <template> 元素上使用 v-if 条件渲染分组-->
+    <template v-if="templateBool">
+        <h1>Title</h1>
+        <p>Paragraph 1</p>
+        <p>Paragraph 2</p>
+    </template>
+    <template v-else>
+        <h1>Title1</h1>
+        <p>Paragraph 3</p>
+        <p>Paragraph 4</p>
+    </template>
+    <hr>
+
+    <div v-if="Math.random() > 0.5">
+        this math random value > 0.5
+    </div>
+    <div v-else>
+        Now this math random value < 0.5
+    </div>
+    <hr>
+
+    <div v-if="type === 'A'">
+        A
+    </div>
+    <div v-else-if="type === 'B'">
+        B
+    </div>
+    <div v-else-if="type === 'C'">
+        C
+    </div>
+    <div v-else>
+        D
+    </div>
+    <hr>
+
+    <!--用 key 管理可复用的元素-->
+    <template v-if="loginType === 'username'">
+        <label>Username</label>
+        <input placeholder="Enter your username" key="username-input">
+    </template>
+    <template v-else>
+        <label>Email</label>
+        <input placeholder="Enter your email address" key="email-input">
+    </template>
+    <button v-on:click="changeLoginType">Change LoginType</button>
+    <hr>
+
+    <!--v-show-->
+    <h4 v-show="showBool">V-SHOW</h4>
+    <hr>
+
+    <!--循环关联数组-->
+    <li v-for="(item, index, key) of objects" v-bind:key="item.key">
+        {{ key }} - {{ index }} - {{ item }}
+    </li>
+    <hr>
+</div>
+
+</body>
+<script type="text/javascript">
+    // COMPONENT
+    Vue.component('todo-item', {
+        props: ['todo'],
+        template: '<li>{{ todo.text }}</li>'
+    });
+
+    var jsonData = {
+        content: 'HELLO WORLD', // 插值
+        content_id: 'unique_content_id', // 插值
+        isButtonDisabled: true, // 插值
+        message: '页面加载于 ' + new Date().toLocaleString(), // 绑定元素
+        seen: true, // 控制切换
+        posts: [ // 循环数组
+            {body: 'content-first'},
+            {body: 'content-second'},
+            {body: 'content-third'},
+            {body: 'content-fourth'}
+        ],
+        reMessage: 'HELLO VUE', // 事件监听器
+        modelBindValue: '双向绑定', // v-model双向绑定
+        parentMessage: 'Parent',
+        items: [ // 组件
+            {id: 0, text: '蔬菜'},
+            {id: 1, text: '奶酪'},
+            {id: 2, text: '随便其它什么人吃的东西'}
+        ],
+        rawHtml: '<p style="color:red">红色的html</p>',
+        textModel: 'this is textModel',
+        question: '',
+        answer: 'I cannot give you an answer until you ask a question!',
+        isActive: true,
+        hasError: true,
+        activeObject: {
+            active: true,
+            'text-danger': true,
+        },
+        error: {
+            type: 'fatal'
+        },
+        activeClass: 'active',
+        errorClass: 'text-danger',
+        redStyle: 'blue',
+        fontSizeStyle: 18,
+        styleObject: {
+            color: 'red',
+            fontSize: '18px'
+        },
+        awesomeBool: false,
+        templateBool: false,
+        type: 'A',
+        loginType: 'username',
+        showBool: true,
+        objects: {
+            title: 'wt',
+            age: 20,
+            birthday: '1993'
+        }
+    };
+
+//    Object.freeze(jsonData); // 冻结数据不允许修改
+
+    var app = new Vue({
+        // 插值
+        el: '#app',
+        data: jsonData,
+        computed: {
+            reverseTextModel: function () {
+                return this.textModel.split('').reverse().join('');
+            },
+            classObject: function() {
+                return {
+                    active: this.isActive && this.error,
+                    'text-danger': this.hasError && this.error.type === 'fatal'
+                }
+            }
+        },
+        // 生命周期钩子
+        beforeCreate: function () {
+            console.log("beforeCreate event:" + this.content);
+        },
+        created: function () {
+            console.log("created event" + this.content);
+            this.debouncedGetAnswer = _.debounce(this.getAnswer, 500)
+        },
+        beforeMount: function () {
+            console.log("beforeMount event" + this.content)
+        },
+        mounted: function () {
+            console.log("mounted event" + this.content)
+        },
+        beforeUpdate: function () {
+            console.log("beforeUpdate event" + this.content)
+        },
+        updated: function () {
+            console.log("updated event" + this.content)
+        },
+        beforeDestroy: function () {
+            console.log("beforeDestroy event" + this.content)
+        },
+        destroyed: function () {
+            console.log("destroyed event" + this.content)
+        },
+        methods: {
+            reverseMessage: function () { // 事件监听器
+                this.reMessage = this.reMessage.split('').reverse().join('')
+            },
+            getAnswer: function () {
+                if (this.question.indexOf('?') === -1) {
+                    this.answer = 'Questions usually contain a question mark. ;-)';
+                    return
+                }
+                this.answer = 'Thinking...';
+                var vm = this;
+                axios.get('https://yesno.wtf/api')
+                    .then(function (response) {
+                        vm.answer = _.capitalize(response.data.answer)
+                    })
+                    .catch(function (error) {
+                        vm.answer = 'Error! Could not reach the API. ' + error
+                    })
+            },
+            changeLoginType: function () {
+                this.loginType = (this.loginType === 'username') ? 'email' : 'username';
+                console.log(this.loginType);
+            }
+        },
+        watch: { // 侦听器
+            question: function (newQuestion, oldQuestion) {
+                this.answer = 'Waiting for you to stop typing..';
+                this.debouncedGetAnswer();
+            }
+        }
+    });
+
+    // 监控数据变化前后的数据
+    app.$watch('content', function (newValue, oldValue) {
+        console.log(newValue, oldValue);
+    });
+
+    // 修改数据
+    app.$data.content = 'Hello WT';
+</script>
+
+</html>
