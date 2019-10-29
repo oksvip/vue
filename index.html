@@ -157,6 +157,21 @@
         {{ key }} - {{ index }} - {{ item }}
     </li>
     <hr>
+
+    <button v-on:click="counter += 1">Add 1</button>
+    <p>The button above has been clicked {{ counter }} times.</p>
+    <hr>
+
+    <button v-on:click="greet">Greet</button>
+    <hr>
+
+    <button v-on:click="say('hi')">Say hi</button>
+    <button v-on:click="say('what')">Say what</button>
+    <hr>
+
+    <button v-on:click="warn('From cannot be submitted yet.', $event)">Submit</button>
+    <hr>
+
 </div>
 
 </body>
@@ -217,7 +232,8 @@
             title: 'wt',
             age: 20,
             birthday: '1993'
-        }
+        },
+        counter: 0
     };
 
 //    Object.freeze(jsonData); // 冻结数据不允许修改
@@ -235,6 +251,52 @@
                     active: this.isActive && this.error,
                     'text-danger': this.hasError && this.error.type === 'fatal'
                 }
+            }
+        },
+        methods: {
+            reverseMessage: function () { // 事件监听器
+                this.reMessage = this.reMessage.split('').reverse().join('')
+            },
+            getAnswer: function () {
+                if (this.question.indexOf('?') === -1) {
+                    this.answer = 'Questions usually contain a question mark. ;-)';
+                    return
+                }
+                this.answer = 'Thinking...';
+                var vm = this;
+                axios.get('https://yesno.wtf/api')
+                    .then(function (response) {
+                        vm.answer = _.capitalize(response.data.answer)
+                    })
+                    .catch(function (error) {
+                        vm.answer = 'Error! Could not reach the API. ' + error
+                    })
+            },
+            changeLoginType: function () {
+                this.loginType = (this.loginType === 'username') ? 'email' : 'username';
+                console.log(this.loginType);
+            },
+            greet: function (event) {
+                alert('Hello ' + this.content + '!');
+                if (event) {
+                    alert(event.target.tagName)
+                }
+            },
+            say: function ($string) {
+                alert($string)
+            },
+            warn: function (message, event) {
+                if (event) {
+                    event.preventDefault()
+                }
+
+                alert(message)
+            },
+        },
+        watch: { // 侦听器
+            question: function (newQuestion, oldQuestion) {
+                this.answer = 'Waiting for you to stop typing..';
+                this.debouncedGetAnswer();
             }
         },
         // 生命周期钩子
@@ -263,36 +325,6 @@
         destroyed: function () {
             console.log("destroyed event" + this.content)
         },
-        methods: {
-            reverseMessage: function () { // 事件监听器
-                this.reMessage = this.reMessage.split('').reverse().join('')
-            },
-            getAnswer: function () {
-                if (this.question.indexOf('?') === -1) {
-                    this.answer = 'Questions usually contain a question mark. ;-)';
-                    return
-                }
-                this.answer = 'Thinking...';
-                var vm = this;
-                axios.get('https://yesno.wtf/api')
-                    .then(function (response) {
-                        vm.answer = _.capitalize(response.data.answer)
-                    })
-                    .catch(function (error) {
-                        vm.answer = 'Error! Could not reach the API. ' + error
-                    })
-            },
-            changeLoginType: function () {
-                this.loginType = (this.loginType === 'username') ? 'email' : 'username';
-                console.log(this.loginType);
-            }
-        },
-        watch: { // 侦听器
-            question: function (newQuestion, oldQuestion) {
-                this.answer = 'Waiting for you to stop typing..';
-                this.debouncedGetAnswer();
-            }
-        }
     });
 
     // 监控数据变化前后的数据
